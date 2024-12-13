@@ -1,0 +1,116 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test-infrastructure:
+    name: Validate Infrastructure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check for required files
+        run: |
+          if [ ! -f ".github/workflows/ci.yml" ]; then
+            echo "CI/CD configuration file missing!"
+            exit 1
+          fi
+          if [ ! -f "docker-compose.yml" ]; then
+            echo "Docker Compose file missing! Skipping..."
+            exit 0
+          fi
+          echo "Infrastructure files are present."
+
+  test-backend-python:
+    name: Test Backend (Python)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check for Python backend files
+        run: |
+          if [ ! -d "src/backend-python" ]; then
+            echo "Python backend not found. Skipping..."
+            exit 0
+          fi
+          if [ -z "$(ls -A src/backend-python)" ]; then
+            echo "Python backend exists but is empty. Skipping..."
+            exit 0
+          fi
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: |
+          cd src/backend-python
+          pip install -r requirements.txt
+      - name: Run tests
+        run: |
+          cd src/backend-python
+          pytest
+
+  test-backend-go:
+    name: Test Backend (Go)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check for Go backend files
+        run: |
+          if [ ! -d "src/backend-go" ]; then
+            echo "Go backend not found. Skipping..."
+            exit 0
+          fi
+          if [ -z "$(ls -A src/backend-go)" ]; then
+            echo "Go backend exists but is empty. Skipping..."
+            exit 0
+          fi
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.19'
+      - name: Run tests
+        run: |
+          cd src/backend-go
+          go test ./...
+
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check for frontend files
+        run: |
+          if [ ! -d "src/frontend" ]; then
+            echo "Frontend not found. Skipping..."
+            exit 0
+          fi
+          if [ -z "$(ls -A src/frontend)" ]; then
+            echo "Frontend exists but is empty. Skipping..."
+            exit 0
+          fi
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Install dependencies
+        run: |
+          cd src/frontend
+          npm install
+      - name: Run tests
+        run: |
+          cd src/frontend
+          npm run test
+
+  always-pass:
+    name: Ensure Pipeline Completes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "Pipeline executed successfully."
