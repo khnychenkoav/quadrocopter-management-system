@@ -37,8 +37,13 @@ services:
     image: bitnami/kafka:latest
     environment:
       - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
     ports:
       - "9092:9092"
 
   zookeeper:
     image: bitnami/zookeeper:latest
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
