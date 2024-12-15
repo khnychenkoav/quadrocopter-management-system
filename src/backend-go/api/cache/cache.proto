@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package cache;
+
+option go_package = "quadrocopter-management-system/src/backend-go/pkg/cache;cache";
+
+service CacheService {
+  rpc Get(GetRequest) returns (GetResponse);
+  rpc Set(SetRequest) returns (SetResponse);
+}
+
+message GetRequest {
+  string key = 1;
+}
+
+message GetResponse {
+  string value = 1;
+}
+
+message SetRequest {
+  string key = 1;
+  string value = 2;
+  int64 ttl = 3; // TTL в секундах
+}
+
+message SetResponse {
+  bool success = 1;
+}
