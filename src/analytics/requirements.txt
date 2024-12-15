@@ -1,0 +1,7 @@
+gym
+stable-baselines3
+ray[tune]
+torch
+numpy
+pandas
+matplotlib
